@@ -32,4 +32,5 @@ dependencies {
     compile 'com.squareup.okhttp:okhttp:2.3.0'
     compile 'com.squareup.okhttp:okhttp-apache:2.3.0'
     compile 'org.jdeferred:jdeferred-android-aar:1.2.4'
+    compile project(path: ':thing-if-AndroidSDK:thingif', configuration: 'debug')
 }

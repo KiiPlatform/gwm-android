@@ -3,7 +3,9 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
+      <module fileurl="file://$PROJECT_DIR$/thing-if-AndroidSDK/thing-if-AndroidSDK.iml" filepath="$PROJECT_DIR$/thing-if-AndroidSDK/thing-if-AndroidSDK.iml" />
       <module fileurl="file://$PROJECT_DIR$/thing-if-gateway-AndroidSample.iml" filepath="$PROJECT_DIR$/thing-if-gateway-AndroidSample.iml" />
+      <module fileurl="file://$PROJECT_DIR$/thing-if-AndroidSDK/thingif/thingif.iml" filepath="$PROJECT_DIR$/thing-if-AndroidSDK/thingif/thingif.iml" />
     </modules>
   </component>
 </project>
