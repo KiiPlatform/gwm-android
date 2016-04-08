@@ -9,17 +9,17 @@
         <option name="modules">
           <set>
             <option value="$PROJECT_DIR$" />
+            <option value="$PROJECT_DIR$/Thing-if-AndroidSDK" />
+            <option value="$PROJECT_DIR$/Thing-if-AndroidSDK/thingif" />
             <option value="$PROJECT_DIR$/app" />
-            <option value="$PROJECT_DIR$/thing-if-AndroidSDK" />
-            <option value="$PROJECT_DIR$/thing-if-AndroidSDK/thingif" />
           </set>
         </option>
         <option name="myModules">
           <set>
             <option value="$PROJECT_DIR$" />
+            <option value="$PROJECT_DIR$/Thing-if-AndroidSDK" />
+            <option value="$PROJECT_DIR$/Thing-if-AndroidSDK/thingif" />
             <option value="$PROJECT_DIR$/app" />
-            <option value="$PROJECT_DIR$/thing-if-AndroidSDK" />
-            <option value="$PROJECT_DIR$/thing-if-AndroidSDK/thingif" />
           </set>
         </option>
       </GradleProjectSettings>

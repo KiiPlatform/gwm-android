@@ -1,0 +1,17 @@
+## How to build
+
+```
+git clone git@github.com:KiiPlatform/thing-if-AndroidSample.git
+cd thing-if-AndroidSample
+git submodule init
+git submodule update
+```
+Then you can open the project with Android Studio.
+
+## App Configuration (without changing code.)
+- create properties file in app/src/main/assets/settings.properties.
+```ini
+appId=9232262b
+appKey=9009c4a0c829e3f723c4426fe3b03c02
+appHost=api.kii.com
+```

@@ -1,1 +1,1 @@
-include ':app', ':thing-if-AndroidSDK:thingif'
+include ':app', ':Thing-if-AndroidSDK:thingif'
