@@ -8,9 +8,9 @@ git submodule update
 ```
 Then you can open the project with Android Studio.
 
-If you get a following error
-Error:(8, 0) Cannot change dependencies of configuration ':thing-if-AndroidSDK:classpath' after it has been resolved.
+If you get a following error  
+**Error:(8, 0) Cannot change dependencies of configuration ':thing-if-AndroidSDK:classpath' after it has been resolved.**
 
-Please refer to this post.
+Please refer to this post.  
 http://stackoverflow.com/questions/33878465/cannot-change-dependencies-of-configuration-after-enabling-instant-run
 
