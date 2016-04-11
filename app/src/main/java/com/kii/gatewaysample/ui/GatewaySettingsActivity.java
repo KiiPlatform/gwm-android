@@ -53,7 +53,7 @@ public class GatewaySettingsActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         try {
-            GatewayAPI api = GatewayAPI.loadFromStoredInstance(this);
+            GatewayAPI api = GatewayAPI.loadFromStoredInstance(this, "gateway");
             editTextIP.setText(api.getGatewayAddress().getHostName());
             if (api.getGatewayAddress().getPort() >= 0) {
                 editTextPortNo.setText(String.valueOf(api.getGatewayAddress().getPort()));
@@ -70,6 +70,7 @@ public class GatewaySettingsActivity extends AppCompatActivity {
             editTextAppID.setText(api.getAppID());
             editTextAppKey.setText(api.getAppKey());
         } catch (StoredGatewayAPIInstanceNotFoundException ignore) {
+            // FIXME:For Text
             editTextIP.setText("10.5.250.92");
             editTextPortNo.setText("4001");
             editTextAppID.setText("c8e970a9");
@@ -78,7 +79,6 @@ public class GatewaySettingsActivity extends AppCompatActivity {
             editTextPassword.setText("gateway_pass");
         }
     }
-
 
     @OnClick(R.id.button_ok)
     public void onClickOK() {
@@ -90,6 +90,27 @@ public class GatewaySettingsActivity extends AppCompatActivity {
         final String username = editTextUsername.getText().toString();
         final String password = editTextPassword.getText().toString();
 
+        if (TextUtils.isEmpty(ip)) {
+            Toast.makeText(this, "IP is required.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        if (TextUtils.isEmpty(appID)) {
+            Toast.makeText(this, "App ID is required.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        if (TextUtils.isEmpty(appKey)) {
+            Toast.makeText(this, "App Key is required.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        if (TextUtils.isEmpty(username)) {
+            Toast.makeText(this, "Username is required.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        if (TextUtils.isEmpty(password)) {
+            Toast.makeText(this, "Password is required.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         GatewayAddress gatewayAddress = null;
         if (TextUtils.isEmpty(port)) {
             gatewayAddress = new GatewayAddress("http", ip);
@@ -97,7 +118,7 @@ public class GatewaySettingsActivity extends AppCompatActivity {
             gatewayAddress = new GatewayAddress("http", ip, Integer.valueOf(port));
         }
         KiiApp app = new KiiApp(appID, appKey, Site.valueOf(site));
-        final GatewayAPI api = GatewayAPIBuilder.newBuilder(getApplicationContext(), app, gatewayAddress).build();
+        final GatewayAPI api = GatewayAPIBuilder.newBuilder(getApplicationContext(), app, gatewayAddress).setTag("gateway").build();
         new AndroidDeferredManager().when(new DeferredAsyncTask<Void, Void, Void>() {
             @Override
             protected Void doInBackgroundSafe(final Void... params) throws Exception {
