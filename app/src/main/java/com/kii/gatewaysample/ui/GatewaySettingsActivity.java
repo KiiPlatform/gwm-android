@@ -10,6 +10,7 @@ import android.widget.SpinnerAdapter;
 import android.widget.Toast;
 
 import com.kii.gatewaysample.R;
+import com.kii.gatewaysample.utils.GatewayPromiseAPIWrapper;
 import com.kii.thingif.KiiApp;
 import com.kii.thingif.Site;
 import com.kii.thingif.exception.StoredGatewayAPIInstanceNotFoundException;
@@ -119,13 +120,7 @@ public class GatewaySettingsActivity extends AppCompatActivity {
         }
         KiiApp app = new KiiApp(appID, appKey, Site.valueOf(site));
         final GatewayAPI api = GatewayAPIBuilder.newBuilder(getApplicationContext(), app, gatewayAddress).setTag("gateway").build();
-        new AndroidDeferredManager().when(new DeferredAsyncTask<Void, Void, Void>() {
-            @Override
-            protected Void doInBackgroundSafe(final Void... params) throws Exception {
-                api.login(username, password);
-                return null;
-            }
-        }).done(new DoneCallback<Void>() {
+        new GatewayPromiseAPIWrapper(api).login(username, password).done(new DoneCallback<Void>() {
             @Override
             public void onDone(final Void result) {
                 finish();

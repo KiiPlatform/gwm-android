@@ -6,10 +6,13 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.kii.gatewaysample.R;
+import com.kii.gatewaysample.utils.GatewayPromiseAPIWrapper;
 import com.kii.thingif.gateway.GatewayAPI;
 
 import org.jdeferred.DoneCallback;
@@ -19,6 +22,7 @@ import org.jdeferred.android.DeferredAsyncTask;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 
 public class GatewayFragment extends Fragment implements PagerFragment {
 
@@ -28,6 +32,8 @@ public class GatewayFragment extends Fragment implements PagerFragment {
     LinearLayout onboardedLayout;
     @Bind(R.id.layout_gateway_unonboarded)
     LinearLayout unonboardedLayout;
+    @Bind(R.id.text_thing_id)
+    TextView textThingId;
 
     public static GatewayFragment newFragment(GatewayAPI api) {
         GatewayFragment fragment = new GatewayFragment();
@@ -52,17 +58,12 @@ public class GatewayFragment extends Fragment implements PagerFragment {
         View view = inflater.inflate(R.layout.gateway_fragment, null);
         ButterKnife.bind(this, view);
 
-        new AndroidDeferredManager().when(new DeferredAsyncTask<Void, Void, Void>() {
+        new GatewayPromiseAPIWrapper(api).getGatewayID().done(new DoneCallback<String>() {
             @Override
-            protected Void doInBackgroundSafe(final Void... params) throws Exception {
-                api.getGatewayID();
-                return null;
-            }
-        }).done(new DoneCallback<Void>() {
-            @Override
-            public void onDone(final Void result) {
+            public void onDone(final String result) {
                 onboardedLayout.setVisibility(View.VISIBLE);
                 unonboardedLayout.setVisibility(View.GONE);
+                textThingId.setText(result);
             }
         }).fail(new FailCallback<Throwable>() {
             @Override
@@ -72,6 +73,22 @@ public class GatewayFragment extends Fragment implements PagerFragment {
             }
         });
         return view;
+    }
+    @OnClick(R.id.button_onboard_gateway)
+    void onboardGateway() {
+        new GatewayPromiseAPIWrapper(api).onboardGateway().done(new DoneCallback<String>() {
+            @Override
+            public void onDone(String result) {
+                onboardedLayout.setVisibility(View.VISIBLE);
+                unonboardedLayout.setVisibility(View.GONE);
+                textThingId.setText(result);
+            }
+        }).fail(new FailCallback<Throwable>() {
+            @Override
+            public void onFail(Throwable result) {
+                Toast.makeText(getContext(), "Failed to onboard gateway -- " + result.getMessage(), Toast.LENGTH_SHORT);
+            }
+        });
     }
 
     @Override
