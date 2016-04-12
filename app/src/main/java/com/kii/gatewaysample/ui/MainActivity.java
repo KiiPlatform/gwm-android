@@ -1,140 +1,182 @@
 package com.kii.gatewaysample.ui;
 
 import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.ViewGroup;
+import android.view.View;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.Button;
+import android.widget.Toast;
 
 import com.kii.gatewaysample.R;
-import com.kii.gatewaysample.ui.fragments.EndnodeFragment;
-import com.kii.gatewaysample.ui.fragments.GatewayFragment;
-import com.kii.gatewaysample.ui.fragments.PagerFragment;
-import com.kii.gatewaysample.ui.views.SlidingTabLayout;
-import com.kii.thingif.exception.StoredGatewayAPIInstanceNotFoundException;
-import com.kii.thingif.gateway.GatewayAPI;
+import com.kii.gatewaysample.ui.fragments.AppWizardFragment;
+import com.kii.gatewaysample.ui.fragments.GatewayWizardFragment;
+import com.kii.gatewaysample.ui.fragments.KiiUserWizardFragment;
+import com.kii.gatewaysample.ui.fragments.OnboardWizardFragment;
+import com.kii.gatewaysample.ui.fragments.WizardFragment;
 
-public class MainActivity extends AppCompatActivity {
+import org.jdeferred.DoneCallback;
+import org.jdeferred.FailCallback;
+import org.jdeferred.android.AndroidDeferredManager;
+import org.jdeferred.android.DeferredAsyncTask;
 
-    private GatewayAPI api;
+import butterknife.Bind;
+import butterknife.ButterKnife;
+
+public class MainActivity extends AppCompatActivity implements WizardFragment.WizardController {
+
+    private static final int WIZARD_PAGE_SIZE = 4;
+    private FragmentStatePagerAdapter adapter;
+    @Bind(R.id.step_pager)
+    ViewPager viewPager;
+    @Bind(R.id.wizard_next_button)
+    Button nextButton;
+    @Bind(R.id.wizard_previous_button)
+    Button previousButton;
+    private int currentPosition = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.tool_bar);
-        setSupportActionBar(toolbar);
+        ButterKnife.bind(this);
+        this.adapter = new WizardPagerAdapter(getSupportFragmentManager());
 
-        ViewPager viewPager = (ViewPager) findViewById(R.id.view_pager);
-        viewPager.setAdapter(new MyAdapter(getSupportFragmentManager()));
+        ViewPager.OnPageChangeListener onPageChangeListener = new ViewPager.SimpleOnPageChangeListener() {
+            @Override
+            public void onPageSelected(int position) {
+                View currentFocus = MainActivity.this.getCurrentFocus();
+                if (currentFocus != null) {
+                    InputMethodManager imm = (InputMethodManager) MainActivity.this.getSystemService(Context.INPUT_METHOD_SERVICE);
+                    imm.hideSoftInputFromWindow(currentFocus.getWindowToken(), 0);
+                }
+                if (currentPosition < position) {
+                    ((WizardFragment) adapter.instantiateItem(viewPager, currentPosition)).onInactivate(WizardFragment.EXIT_NEXT);
+                } else {
+                    ((WizardFragment) adapter.instantiateItem(viewPager, currentPosition)).onInactivate(WizardFragment.EXIT_PREVIOUS);
+                }
+                WizardFragment wizardFragment = (WizardFragment) adapter.instantiateItem(viewPager, position);
+                wizardFragment.onActivate();
+                currentPosition = position;
+            }
+        };
+        this.viewPager.addOnPageChangeListener(onPageChangeListener);
+        this.viewPager.setAdapter(this.adapter);
+        this.nextButton = (Button)findViewById(R.id.wizard_next_button);
+        this.nextButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                final int position = viewPager.getCurrentItem();
+                final WizardFragment currentWizardFragment = (WizardFragment) adapter.instantiateItem(viewPager, position);
+                if (position + 1 < WIZARD_PAGE_SIZE) {
+                    new AndroidDeferredManager().when(new DeferredAsyncTask<Void, Void, Void>() {
+                        @Override
+                        protected Void doInBackgroundSafe(final Void... params) throws Exception {
+                            currentWizardFragment.execute();
+                            return null;
+                        }
+                    }).done(new DoneCallback<Void>() {
+                        @Override
+                        public void onDone(final Void result) {
+                            viewPager.setCurrentItem(position + 1);
+                            WizardFragment wizardFragment = (WizardFragment) adapter.getItem(position + 1);
+                            nextButton.setText(wizardFragment.getNextButtonText());
+                            previousButton.setText(wizardFragment.getPreviousButtonText());
+                        }
+                    }).fail(new FailCallback<Throwable>() {
+                        @Override
+                        public void onFail(final Throwable tr) {
+                            Toast.makeText(MainActivity.this, tr.getMessage(), Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                } else if (position + 1 == WIZARD_PAGE_SIZE) {
+                    new AndroidDeferredManager().when(new DeferredAsyncTask<Void, Void, Void>() {
+                        @Override
+                        protected Void doInBackgroundSafe(final Void... params) throws Exception {
+                            currentWizardFragment.execute();
+                            return null;
+                        }
+                    }).done(new DoneCallback<Void>() {
+                        @Override
+                        public void onDone(final Void result) {
+                            Toast.makeText(MainActivity.this, "Gateway is onboarded", Toast.LENGTH_SHORT).show();
+                        }
+                    }).fail(new FailCallback<Throwable>() {
+                        @Override
+                        public void onFail(final Throwable tr) {
+                            Toast.makeText(MainActivity.this, tr.getMessage(), Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                }
+            }
+        });
+        this.nextButton.setText("Next");
+        this.previousButton = (Button)findViewById(R.id.wizard_previous_button);
+        this.previousButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                int position = viewPager.getCurrentItem();
+                WizardFragment wizardFragment = (WizardFragment) adapter.instantiateItem(viewPager, position);
+                if (position > 0) {
+                    position--;
+                    viewPager.setCurrentItem(position);
+                    wizardFragment = (WizardFragment) adapter.getItem(position);
+                    nextButton.setText(wizardFragment.getNextButtonText());
+                    previousButton.setText(wizardFragment.getPreviousButtonText());
+                } else {
+                    finish();
+                }
+            }
+        });
+        this.previousButton.setText("Exit");
 
-        SlidingTabLayout slidingTabLayout = (SlidingTabLayout) findViewById(R.id.sliding_tabs);
-        slidingTabLayout.setViewPager(viewPager);
     }
     @Override
     protected void onResume() {
         super.onResume();
-        try {
-            this.api = GatewayAPI.loadFromStoredInstance(this, "gateway");
-        } catch (StoredGatewayAPIInstanceNotFoundException e) {
-            Intent intent = new Intent();
-            intent.setClassName(this, GatewaySettingsActivity.class.getName());
-            startActivity(intent);
-        }
-    }
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        return true;
     }
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            Intent intent = new Intent();
-            intent.setClassName(this, GatewaySettingsActivity.class.getName());
-            startActivity(intent);
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
-    }
-    @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        outState.putParcelable("GatewayAPI", this.api);
-    }
-    @Override
-    protected void onRestoreInstanceState(Bundle savedInstanceState) {
-        super.onRestoreInstanceState(savedInstanceState);
-        this.api = (GatewayAPI) savedInstanceState.getParcelable("GatewayAPI");
+    public void setNextButtonEnabled(boolean enabled) {
+        this.nextButton.setEnabled(enabled);
     }
 
-    class MyAdapter extends FragmentPagerAdapter {
+    private class WizardPagerAdapter extends FragmentStatePagerAdapter {
+        private static final int PAGE_APP_SETTING  = 0;
+        private static final int PAGE_KII_USER_SETTING = 1;
+        private static final int PAGE_GATEWAY_SETTING = 2;
+        private static final int PAGE_ONBOARD_GATEWAY = 3;
 
-        private PagerFragment currentFragment;
-        public MyAdapter(FragmentManager fm) {
+        public WizardPagerAdapter(FragmentManager fm) {
             super(fm);
         }
-
-        @Override
-        public int getCount() {
-            return 2;
-        }
-
-        @Override
-        public CharSequence getPageTitle(int position) {
-            switch(position) {
-                case 0:
-                    return "Gateway";
-                case 1:
-                    return "Endnode";
-                default:
-                    throw new RuntimeException("Unxepected flow.");
-            }
-        }
-
         @Override
         public Fragment getItem(int position) {
+            WizardFragment fragment = null;
             switch (position) {
-                case 0:
-                    return GatewayFragment.newFragment(api);
-                case 1:
-                    return EndnodeFragment.newFragment(api);
-                default:
-                    throw new RuntimeException("Unknown flow");
+                case PAGE_APP_SETTING:
+                    fragment = AppWizardFragment.newFragment();
+                    break;
+                case PAGE_KII_USER_SETTING:
+                    fragment = KiiUserWizardFragment.newFragment();
+                    break;
+                case PAGE_GATEWAY_SETTING:
+                    fragment = GatewayWizardFragment.newFragment();
+                    break;
+                case PAGE_ONBOARD_GATEWAY:
+                    fragment = OnboardWizardFragment.newFragment();
+                    break;
             }
+            fragment.setController(MainActivity.this);
+            return fragment;
         }
         @Override
-        public void setPrimaryItem(ViewGroup container, int position, Object object) {
-            if (object instanceof PagerFragment && this.currentFragment != object) {
-                if (getCurrentFocus() != null) {
-                    InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-                    imm.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
-                }
-                ((PagerFragment) object).onVisible(true);
-                if (this.currentFragment != null) {
-                    this.currentFragment.onVisible(false);
-                }
-                this.currentFragment = ((PagerFragment) object);
-            }
-            super.setPrimaryItem(container, position, object);
+        public int getCount() {
+            return WIZARD_PAGE_SIZE;
         }
     }
-
 }

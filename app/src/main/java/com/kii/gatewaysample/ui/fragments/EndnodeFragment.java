@@ -34,8 +34,6 @@ public class EndnodeFragment extends Fragment implements PagerFragment {
             this.api = arguments.getParcelable("GatewayAPI");
         }
         View view = inflater.inflate(R.layout.endnode_fragment, null);
-
-
         return view;
     }
 
