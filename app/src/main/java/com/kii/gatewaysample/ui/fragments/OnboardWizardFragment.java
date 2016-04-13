@@ -24,7 +24,7 @@ public class OnboardWizardFragment  extends WizardFragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.endnode_fragment, null);
+        View view = inflater.inflate(R.layout.onboard_wizard_fragment, null);
         ButterKnife.bind(this, view);
         return view;
     }

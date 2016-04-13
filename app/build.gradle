@@ -11,6 +11,14 @@ android {
         versionCode 1
         versionName "1.0"
     }
+    productFlavors {
+        gateway {
+            applicationId "com.kii.gatewaysample.gateway"
+        }
+        endnode {
+            applicationId "com.kii.gatewaysample.endnode"
+        }
+    }
     buildTypes {
         release {
             minifyEnabled false
