@@ -1,4 +1,4 @@
-package com.kii.gatewaysample.ui.fragments;
+package com.kii.gatewaysample.ui.fragments.wizard;
 
 import android.os.Bundle;
 import android.text.Editable;
@@ -10,7 +10,6 @@ import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.EditText;
 
-import com.kii.cloud.storage.Kii;
 import com.kii.cloud.storage.KiiUser;
 import com.kii.gatewaysample.R;
 

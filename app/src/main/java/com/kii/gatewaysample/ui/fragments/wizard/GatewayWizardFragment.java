@@ -1,4 +1,4 @@
-package com.kii.gatewaysample.ui.fragments;
+package com.kii.gatewaysample.ui.fragments.wizard;
 
 import android.os.Bundle;
 import android.text.Editable;

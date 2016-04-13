@@ -1,4 +1,4 @@
-package com.kii.gatewaysample.ui.fragments;
+package com.kii.gatewaysample.ui.fragments.wizard;
 
 import android.support.v4.app.Fragment;
 

@@ -1,6 +1,7 @@
 package com.kii.gatewaysample.ui;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -12,12 +13,14 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.Toast;
 
+import com.kii.gatewaysample.AppConst;
+import com.kii.gatewaysample.BuildConfig;
 import com.kii.gatewaysample.R;
-import com.kii.gatewaysample.ui.fragments.AppWizardFragment;
-import com.kii.gatewaysample.ui.fragments.GatewayWizardFragment;
-import com.kii.gatewaysample.ui.fragments.KiiUserWizardFragment;
-import com.kii.gatewaysample.ui.fragments.OnboardWizardFragment;
-import com.kii.gatewaysample.ui.fragments.WizardFragment;
+import com.kii.gatewaysample.ui.fragments.wizard.AppWizardFragment;
+import com.kii.gatewaysample.ui.fragments.wizard.GatewayWizardFragment;
+import com.kii.gatewaysample.ui.fragments.wizard.KiiUserWizardFragment;
+import com.kii.gatewaysample.ui.fragments.wizard.OnboardWizardFragment;
+import com.kii.gatewaysample.ui.fragments.wizard.WizardFragment;
 
 import org.jdeferred.DoneCallback;
 import org.jdeferred.FailCallback;
@@ -104,6 +107,13 @@ public class MainActivity extends AppCompatActivity implements WizardFragment.Wi
                         @Override
                         public void onDone(final Void result) {
                             Toast.makeText(MainActivity.this, "Gateway is onboarded", Toast.LENGTH_SHORT).show();
+                            Intent intent = null;
+                            if (AppConst.FLAVOR_GATEWAY.equals(BuildConfig.FLAVOR)) {
+                                intent = new Intent(MainActivity.this, GatewayActivity.class);
+                            } else {
+                                intent = new Intent(MainActivity.this, EndnodeActivity.class);
+                            }
+                            startActivity(intent);
                         }
                     }).fail(new FailCallback<Throwable>() {
                         @Override

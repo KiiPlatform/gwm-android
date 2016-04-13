@@ -1,7 +1,6 @@
-package com.kii.gatewaysample.ui.fragments;
+package com.kii.gatewaysample.ui.fragments.wizard;
 
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
