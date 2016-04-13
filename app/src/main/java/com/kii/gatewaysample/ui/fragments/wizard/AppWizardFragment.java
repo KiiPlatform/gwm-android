@@ -11,6 +11,8 @@ import android.widget.EditText;
 import android.widget.Spinner;
 
 import com.kii.cloud.storage.Kii;
+import com.kii.gatewaysample.AppConst;
+import com.kii.gatewaysample.BuildConfig;
 import com.kii.gatewaysample.R;
 
 import butterknife.Bind;
@@ -38,8 +40,13 @@ public class AppWizardFragment extends WizardFragment {
         ButterKnife.bind(this, view);
 
         // FIXME
-        editTextAppID.setText("c8e970a9");
-        editTextAppKey.setText("d59ac1235c57875436f8b396d190fff7");
+        if (AppConst.FLAVOR_GATEWAY.equals(BuildConfig.FLAVOR)) {
+            editTextAppID.setText("c8e970a9");
+            editTextAppKey.setText("d59ac1235c57875436f8b396d190fff7");
+        } else {
+            editTextAppID.setText("75b59c89");
+            editTextAppKey.setText("4b61c84c6dfbaa6f191305f342e6c950");
+        }
 
         TextWatcher watcher = new TextWatcher() {
             @Override
