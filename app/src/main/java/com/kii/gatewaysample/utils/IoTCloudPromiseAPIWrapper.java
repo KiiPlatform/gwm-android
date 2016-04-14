@@ -14,6 +14,7 @@ import com.kii.thingif.trigger.TriggeredServerCodeResult;
 import org.jdeferred.Promise;
 import org.jdeferred.android.AndroidDeferredManager;
 import org.jdeferred.android.DeferredAsyncTask;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -41,11 +42,11 @@ public class IoTCloudPromiseAPIWrapper {
             }
         });
     }
-    public Promise<Target, Throwable, Void> onboard(final String venderThingID, final String thingPassword, final String thingType) {
+    public Promise<Target, Throwable, Void> onboardEndnodeWithGatewayThingID(final String gatewayThingID, final String venderThingID, final String thingPassword, final String thingType, final JSONObject thingProperties) {
         return adm.when(new DeferredAsyncTask<Void, Void, Target>() {
             @Override
             protected Target doInBackgroundSafe(Void... voids) throws Exception {
-                return api.onboard(venderThingID, thingPassword, thingType, null);
+                return api.onboardEndnodeWithGatewayThingID(gatewayThingID, venderThingID, thingPassword, thingType, thingProperties);
             }
         });
     }

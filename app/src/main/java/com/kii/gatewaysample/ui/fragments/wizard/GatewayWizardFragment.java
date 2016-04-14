@@ -70,6 +70,7 @@ public class GatewayWizardFragment  extends WizardFragment {
 
     @Override
     public void execute() throws Exception {
+        // TODO:Gets Site from KiiCloudSDK directly
         Site site = null;
         if ("https://api-jp.kii.com/api".equals(Kii.getBaseURL())) {
             site = Site.JP;
@@ -93,7 +94,7 @@ public class GatewayWizardFragment  extends WizardFragment {
         } else {
             address = new GatewayAddress("http", ip, Integer.valueOf(port));
         }
-        GatewayAPI api = GatewayAPIBuilder.newBuilder(getContext(), app, address).build();
+        GatewayAPI api = GatewayAPIBuilder.newBuilder(getActivity(), app, address).build();
         api.login(username, password);
     }
     @Override

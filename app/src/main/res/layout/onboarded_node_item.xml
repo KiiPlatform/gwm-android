@@ -24,8 +24,8 @@
             android:textStyle="bold"/>
     </LinearLayout>
     <Button
-        android:id="@+id/row_button_onboard"
-        android:text="Onboard"
+        android:id="@+id/row_button_send_command"
+        android:text="Send"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_vertical|right"

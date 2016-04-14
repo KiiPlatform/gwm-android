@@ -18,7 +18,12 @@ public class OnboardWizardFragment  extends WizardFragment {
         OnboardWizardFragment fragment = new OnboardWizardFragment();
         return fragment;
     }
+    private String gatewayThingID = null;
     public OnboardWizardFragment() {
+    }
+
+    public String getGatewayThingID() {
+        return this.gatewayThingID;
     }
 
     @Override
@@ -30,10 +35,11 @@ public class OnboardWizardFragment  extends WizardFragment {
 
     @Override
     public void execute() throws Exception {
-        GatewayAPI gatewayAPI = GatewayAPI.loadFromStoredInstance(getContext());
-        String thingID = gatewayAPI.onboardGateway();
-        KiiThing.thingWithID(thingID).registerOwner(KiiUser.getCurrentUser());
+        GatewayAPI gatewayAPI = GatewayAPI.loadFromStoredInstance(getActivity());
+        this.gatewayThingID = gatewayAPI.onboardGateway();
+        KiiThing.thingWithID(this.gatewayThingID).registerOwner(KiiUser.getCurrentUser());
     }
+
     @Override
     public String getNextButtonText() {
         return "Onboard";

@@ -28,12 +28,16 @@ public class EndnodeActivity extends AppCompatActivity {
     SlidingTabLayout slidingTabLayout;
     @Bind(R.id.view_pager)
     ViewPager viewPager;
+    private String gatewayThingID;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_endnode);
         ButterKnife.bind(this);
+
+        this.gatewayThingID = getIntent().getStringExtra("gatewayThingID");
+
         setSupportActionBar(this.toolbar);
         this.viewPager.setAdapter(new MyAdapter(getSupportFragmentManager()));
         this.slidingTabLayout.setViewPager(this.viewPager);
@@ -69,7 +73,7 @@ public class EndnodeActivity extends AppCompatActivity {
         public Fragment getItem(int position) {
             switch (position) {
                 case 0:
-                    return PendingNodesFragment.newFragment();
+                    return PendingNodesFragment.newFragment(gatewayThingID);
                 case 1:
                     return OnboardedNodesFragment.newFragment();
                 default:

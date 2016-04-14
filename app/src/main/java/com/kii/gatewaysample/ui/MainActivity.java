@@ -97,21 +97,22 @@ public class MainActivity extends AppCompatActivity implements WizardFragment.Wi
                         }
                     });
                 } else if (position + 1 == WIZARD_PAGE_SIZE) {
-                    new AndroidDeferredManager().when(new DeferredAsyncTask<Void, Void, Void>() {
+                    new AndroidDeferredManager().when(new DeferredAsyncTask<Void, Void, String>() {
                         @Override
-                        protected Void doInBackgroundSafe(final Void... params) throws Exception {
+                        protected String doInBackgroundSafe(final Void... params) throws Exception {
                             currentWizardFragment.execute();
-                            return null;
+                            return ((OnboardWizardFragment)currentWizardFragment).getGatewayThingID();
                         }
-                    }).done(new DoneCallback<Void>() {
+                    }).done(new DoneCallback<String>() {
                         @Override
-                        public void onDone(final Void result) {
+                        public void onDone(final String gatewayThingID) {
                             Toast.makeText(MainActivity.this, "Gateway is onboarded", Toast.LENGTH_SHORT).show();
                             Intent intent = null;
                             if (AppConst.FLAVOR_GATEWAY.equals(BuildConfig.FLAVOR)) {
                                 intent = new Intent(MainActivity.this, GatewayActivity.class);
                             } else {
                                 intent = new Intent(MainActivity.this, EndnodeActivity.class);
+                                intent.putExtra("gatewayThingID", gatewayThingID);
                             }
                             startActivity(intent);
                         }

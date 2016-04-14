@@ -88,7 +88,7 @@ public class AppWizardFragment extends WizardFragment {
             String appID = this.editTextAppID.getText().toString();
             String appKey = this.editTextAppKey.getText().toString();
             String site = (String)spinnerSite.getSelectedItem();
-            Kii.initialize(getContext(), appID, appKey, Kii.Site.valueOf(site));
+            Kii.initialize(getActivity(), appID, appKey, Kii.Site.valueOf(site));
         }
     }
 
