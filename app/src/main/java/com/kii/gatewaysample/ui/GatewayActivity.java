@@ -8,6 +8,7 @@ import com.kii.gatewaysample.R;
 import com.kii.gatewaysample.utils.GatewayPromiseAPIWrapper;
 import com.kii.thingif.exception.StoredGatewayAPIInstanceNotFoundException;
 import com.kii.thingif.gateway.GatewayAPI;
+import com.kii.thingif.gateway.GatewayInformation;
 
 import org.jdeferred.DoneCallback;
 import org.jdeferred.FailCallback;
@@ -31,12 +32,12 @@ public class GatewayActivity extends AppCompatActivity {
         ButterKnife.bind(this);
         try {
             GatewayAPI api = GatewayAPI.loadFromStoredInstance(this);
-            this.textHost.setText(api.getGatewayAddress().getBaseUrl());
+            this.textHost.setText(api.getGatewayAddress().toString());
             GatewayPromiseAPIWrapper wrapper = new GatewayPromiseAPIWrapper(api);
-            wrapper.getGatewayInformation().then(new DoneCallback<String>() {
+            wrapper.getGatewayInformation().then(new DoneCallback<GatewayInformation>() {
                 @Override
-                public void onDone(String result) {
-                    textVendorThingID.setText(result);
+                public void onDone(GatewayInformation result) {
+                    textVendorThingID.setText(result.getVendorThingID());
                 }
             }).fail(new FailCallback<Throwable>() {
                 @Override

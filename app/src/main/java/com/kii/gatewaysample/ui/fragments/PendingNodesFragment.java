@@ -17,8 +17,8 @@ import android.widget.Toast;
 
 import com.kii.gatewaysample.R;
 import com.kii.gatewaysample.utils.GatewayPromiseAPIWrapper;
+import com.kii.thingif.gateway.EndNode;
 import com.kii.thingif.gateway.GatewayAPI;
-import com.kii.thingif.gateway.PendingEndNode;
 
 import org.jdeferred.AlwaysCallback;
 import org.jdeferred.DoneCallback;
@@ -83,9 +83,9 @@ public class PendingNodesFragment extends Fragment implements PagerFragment {
     private void loadPendingNodes() {
         try {
             GatewayAPI api = GatewayAPI.loadFromStoredInstance(getActivity());
-            new GatewayPromiseAPIWrapper(api).listPendingEndNodes().then(new DoneCallback<List<PendingEndNode>>() {
+            new GatewayPromiseAPIWrapper(api).listPendingEndNodes().then(new DoneCallback<List<EndNode>>() {
                 @Override
-                public void onDone(List<PendingEndNode> result) {
+                public void onDone(List<EndNode> result) {
                     adapter.clear();
                     adapter.addAll(result);
                 }
@@ -94,9 +94,9 @@ public class PendingNodesFragment extends Fragment implements PagerFragment {
                 public void onFail(Throwable result) {
                     Toast.makeText(getActivity(), result.getMessage(), Toast.LENGTH_SHORT).show();
                 }
-            }).always(new AlwaysCallback<List<PendingEndNode>, Throwable>() {
+            }).always(new AlwaysCallback<List<EndNode>, Throwable>() {
                 @Override
-                public void onAlways(Promise.State state, List<PendingEndNode> resolved, Throwable rejected) {
+                public void onAlways(Promise.State state, List<EndNode> resolved, Throwable rejected) {
                     if (swipeRefreshLayout != null) {
                         swipeRefreshLayout.setRefreshing(false);
                     }
@@ -119,7 +119,7 @@ public class PendingNodesFragment extends Fragment implements PagerFragment {
             loadPendingNodes();
         }
     }
-    private class PendingEndNodeArrayAdapter extends ArrayAdapter<PendingEndNode> {
+    private class PendingEndNodeArrayAdapter extends ArrayAdapter<EndNode> {
         private final LayoutInflater inflater;
         private PendingEndNodeArrayAdapter(Context context) {
             super(context, R.layout.pending_node_item);
@@ -137,7 +137,7 @@ public class PendingNodesFragment extends Fragment implements PagerFragment {
             } else {
                 holder = (PendingEndNodeViewHolder)convertView.getTag();
             }
-            final PendingEndNode item = this.getItem(position);
+            final EndNode item = this.getItem(position);
             holder.text.setText(item.getVendorThingID());
             holder.buttonOnboard.setOnClickListener(new View.OnClickListener() {
                 @Override

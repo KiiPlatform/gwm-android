@@ -1,5 +1,6 @@
 package com.kii.gatewaysample.ui.fragments.wizard;
 
+import android.net.Uri;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextUtils;
@@ -15,7 +16,6 @@ import com.kii.thingif.KiiApp;
 import com.kii.thingif.Site;
 import com.kii.thingif.gateway.GatewayAPI;
 import com.kii.thingif.gateway.GatewayAPIBuilder;
-import com.kii.thingif.gateway.GatewayAddress;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -88,13 +88,14 @@ public class GatewayWizardFragment  extends WizardFragment {
         String password = this.editTextPassword.getText().toString();
 
         KiiApp app = new KiiApp(Kii.getAppId(), Kii.getAppKey(), site);
-        GatewayAddress address = null;
+        Uri.Builder builder = new Uri.Builder();
+        builder.scheme("http");
         if (TextUtils.isEmpty(port)) {
-            address = new GatewayAddress("http", ip);
+            builder.encodedAuthority(ip);
         } else {
-            address = new GatewayAddress("http", ip, Integer.valueOf(port));
+            builder.encodedAuthority(ip + ":" + port);
         }
-        GatewayAPI api = GatewayAPIBuilder.newBuilder(getActivity(), app, address).build();
+        GatewayAPI api = GatewayAPIBuilder.newBuilder(getActivity(), app, builder.build()).build();
         api.login(username, password);
     }
     @Override

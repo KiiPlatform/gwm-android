@@ -1,7 +1,8 @@
 package com.kii.gatewaysample.utils;
 
 import com.kii.thingif.gateway.GatewayAPI;
-import com.kii.thingif.gateway.PendingEndNode;
+import com.kii.thingif.gateway.EndNode;
+import com.kii.thingif.gateway.GatewayInformation;
 
 import org.jdeferred.Promise;
 import org.jdeferred.android.AndroidDeferredManager;
@@ -49,10 +50,10 @@ public class GatewayPromiseAPIWrapper {
             }
         });
     }
-    public Promise<List<PendingEndNode>, Throwable, Void> listPendingEndNodes() {
-        return adm.when(new DeferredAsyncTask<Void, Void, List<PendingEndNode>>() {
+    public Promise<List<EndNode>, Throwable, Void> listPendingEndNodes() {
+        return adm.when(new DeferredAsyncTask<Void, Void, List<EndNode>>() {
             @Override
-            protected List<PendingEndNode> doInBackgroundSafe(Void... voids) throws Exception {
+            protected List<EndNode> doInBackgroundSafe(Void... voids) throws Exception {
                 return api.listPendingEndNodes();
             }
         });
@@ -84,10 +85,10 @@ public class GatewayPromiseAPIWrapper {
             }
         });
     }
-    public Promise<String, Throwable, Void> getGatewayInformation() {
-        return adm.when(new DeferredAsyncTask<Void, Void, String>() {
+    public Promise<GatewayInformation, Throwable, Void> getGatewayInformation() {
+        return adm.when(new DeferredAsyncTask<Void, Void, GatewayInformation>() {
             @Override
-            protected String doInBackgroundSafe(Void... voids) throws Exception {
+            protected GatewayInformation doInBackgroundSafe(Void... voids) throws Exception {
                 return api.getGatewayInformation();
             }
         });
