@@ -144,7 +144,7 @@ public class OnboardedNodesFragment extends Fragment implements PagerFragment {
                 @Override
                 public void onClick(View v) {
                 try {
-                    ThingIFAPI api = ThingIFAPI.loadFromStoredInstance(getActivity());
+                    ThingIFAPI api = ThingIFAPI.loadFromStoredInstance(getActivity(), "endnode");
                     List<Action> actions = new ArrayList<Action>();
                     actions.add(new TurnPower(true));
                     new IoTCloudPromiseAPIWrapper(api).postNewCommand(ApiBuilder.SCHEMA_NAME, ApiBuilder.SCHEMA_VERSION, actions).done(new DoneCallback<Command>() {

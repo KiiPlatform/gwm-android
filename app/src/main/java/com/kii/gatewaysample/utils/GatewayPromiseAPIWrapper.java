@@ -1,8 +1,10 @@
 package com.kii.gatewaysample.utils;
 
+import com.kii.thingif.gateway.Gateway;
 import com.kii.thingif.gateway.GatewayAPI;
 import com.kii.thingif.gateway.EndNode;
 import com.kii.thingif.gateway.GatewayInformation;
+import com.kii.thingif.gateway.PendingEndNode;
 
 import org.jdeferred.Promise;
 import org.jdeferred.android.AndroidDeferredManager;
@@ -34,10 +36,10 @@ public class GatewayPromiseAPIWrapper {
             }
         });
     }
-    public Promise<String, Throwable, Void> onboardGateway() {
-        return adm.when(new DeferredAsyncTask<Void, Void, String>() {
+    public Promise<Gateway, Throwable, Void> onboardGateway() {
+        return adm.when(new DeferredAsyncTask<Void, Void, Gateway>() {
             @Override
-            protected String doInBackgroundSafe(Void... voids) throws Exception {
+            protected Gateway doInBackgroundSafe(Void... voids) throws Exception {
                 return api.onboardGateway();
             }
         });
@@ -50,19 +52,19 @@ public class GatewayPromiseAPIWrapper {
             }
         });
     }
-    public Promise<List<EndNode>, Throwable, Void> listPendingEndNodes() {
-        return adm.when(new DeferredAsyncTask<Void, Void, List<EndNode>>() {
+    public Promise<List<PendingEndNode>, Throwable, Void> listPendingEndNodes() {
+        return adm.when(new DeferredAsyncTask<Void, Void, List<PendingEndNode>>() {
             @Override
-            protected List<EndNode> doInBackgroundSafe(Void... voids) throws Exception {
+            protected List<PendingEndNode> doInBackgroundSafe(Void... voids) throws Exception {
                 return api.listPendingEndNodes();
             }
         });
     }
-    public Promise<Void, Throwable, Void> notifyOnboardingCompletion(final String endNodeThingID, final String endNodeVenderThingID) {
+    public Promise<Void, Throwable, Void> notifyOnboardingCompletion(final EndNode endNode) {
         return adm.when(new DeferredAsyncTask<Void, Void, Void>() {
             @Override
             protected Void doInBackgroundSafe(Void... voids) throws Exception {
-                api.notifyOnboardingCompletion(endNodeThingID, endNodeVenderThingID);
+                api.notifyOnboardingCompletion(endNode);
                 return null;
             }
         });

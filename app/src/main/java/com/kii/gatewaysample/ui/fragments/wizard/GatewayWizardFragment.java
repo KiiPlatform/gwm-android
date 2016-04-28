@@ -69,6 +69,10 @@ public class GatewayWizardFragment  extends WizardFragment {
     }
 
     @Override
+    public void onActivate() {
+        this.validateRequiredField();
+    }
+    @Override
     public void execute() throws Exception {
         // TODO:Gets Site from KiiCloudSDK directly
         Site site = null;

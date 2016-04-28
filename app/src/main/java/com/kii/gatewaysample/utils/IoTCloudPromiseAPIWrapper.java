@@ -6,6 +6,8 @@ import com.kii.thingif.ThingIFAPI;
 import com.kii.thingif.Target;
 import com.kii.thingif.command.Action;
 import com.kii.thingif.command.Command;
+import com.kii.thingif.gateway.EndNode;
+import com.kii.thingif.gateway.PendingEndNode;
 import com.kii.thingif.trigger.Predicate;
 import com.kii.thingif.trigger.ServerCode;
 import com.kii.thingif.trigger.Trigger;
@@ -14,7 +16,6 @@ import com.kii.thingif.trigger.TriggeredServerCodeResult;
 import org.jdeferred.Promise;
 import org.jdeferred.android.AndroidDeferredManager;
 import org.jdeferred.android.DeferredAsyncTask;
-import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -42,11 +43,11 @@ public class IoTCloudPromiseAPIWrapper {
             }
         });
     }
-    public Promise<Target, Throwable, Void> onboardEndnodeWithGatewayThingID(final String gatewayThingID, final String venderThingID, final String thingPassword, final String thingType, final JSONObject thingProperties) {
-        return adm.when(new DeferredAsyncTask<Void, Void, Target>() {
+    public Promise<EndNode, Throwable, Void> onboardEndnodeWithGateway(final PendingEndNode pendingEndNode, final String thingPassword) {
+        return adm.when(new DeferredAsyncTask<Void, Void, EndNode>() {
             @Override
-            protected Target doInBackgroundSafe(Void... voids) throws Exception {
-                return api.onboardEndnodeWithGatewayThingID(gatewayThingID, venderThingID, thingPassword, thingType, thingProperties);
+            protected EndNode doInBackgroundSafe(Void... voids) throws Exception {
+                return api.onboardEndnodeWithGateway(pendingEndNode, thingPassword);
             }
         });
     }

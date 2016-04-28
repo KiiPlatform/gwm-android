@@ -17,7 +17,7 @@ public class ApiBuilder {
     public static final String SCHEMA_NAME = "Smart-Light-Demo";
     public static final int SCHEMA_VERSION = 1;
 
-    public static ThingIFAPI buildApi(Context context, KiiUser owner) {
+    public static ThingIFAPI buildApi(Context context, KiiUser owner, String tag) {
         String appId = Kii.getAppId();
         String appKey = Kii.getAppKey();
         // TODO:Gets Site from KiiCloudSDK directly
@@ -33,6 +33,7 @@ public class ApiBuilder {
         }
         KiiApp app = new KiiApp(appId, appKey, site);
         ThingIFAPIBuilder builder = ThingIFAPIBuilder.newBuilder(context, app, new Owner(new TypedID(TypedID.Types.USER, owner.getID()), owner.getAccessToken()));
+        builder.setTag(tag);
         SchemaBuilder schemaBuilder = SchemaBuilder.newSchemaBuilder("SmartLight-Demo", SCHEMA_NAME, SCHEMA_VERSION, LightState.class);
         schemaBuilder.addActionClass(TurnPower.class, TurnPowerResult.class);
         schemaBuilder.addActionClass(SetBrightness.class, SetBrightnessResult.class);

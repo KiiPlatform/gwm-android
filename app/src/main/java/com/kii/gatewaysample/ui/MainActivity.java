@@ -21,6 +21,7 @@ import com.kii.gatewaysample.ui.fragments.wizard.GatewayWizardFragment;
 import com.kii.gatewaysample.ui.fragments.wizard.KiiUserWizardFragment;
 import com.kii.gatewaysample.ui.fragments.wizard.OnboardWizardFragment;
 import com.kii.gatewaysample.ui.fragments.wizard.WizardFragment;
+import com.kii.thingif.gateway.Gateway;
 
 import org.jdeferred.DoneCallback;
 import org.jdeferred.FailCallback;
@@ -97,22 +98,22 @@ public class MainActivity extends AppCompatActivity implements WizardFragment.Wi
                         }
                     });
                 } else if (position + 1 == WIZARD_PAGE_SIZE) {
-                    new AndroidDeferredManager().when(new DeferredAsyncTask<Void, Void, String>() {
+                    new AndroidDeferredManager().when(new DeferredAsyncTask<Void, Void, Gateway>() {
                         @Override
-                        protected String doInBackgroundSafe(final Void... params) throws Exception {
+                        protected Gateway doInBackgroundSafe(final Void... params) throws Exception {
                             currentWizardFragment.execute();
-                            return ((OnboardWizardFragment)currentWizardFragment).getGatewayThingID();
+                            return ((OnboardWizardFragment)currentWizardFragment).getGateway();
                         }
-                    }).done(new DoneCallback<String>() {
+                    }).done(new DoneCallback<Gateway>() {
                         @Override
-                        public void onDone(final String gatewayThingID) {
+                        public void onDone(final Gateway gateway) {
                             Toast.makeText(MainActivity.this, "Gateway is onboarded", Toast.LENGTH_SHORT).show();
                             Intent intent = null;
                             if (AppConst.FLAVOR_GATEWAY.equals(BuildConfig.FLAVOR)) {
                                 intent = new Intent(MainActivity.this, GatewayActivity.class);
                             } else {
                                 intent = new Intent(MainActivity.this, EndnodeActivity.class);
-                                intent.putExtra("gatewayThingID", gatewayThingID);
+                                intent.putExtra("gatewayThingID", gateway.getThingID());
                             }
                             startActivity(intent);
                         }

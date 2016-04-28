@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AlertDialog;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.EditText;
@@ -14,18 +15,18 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.kii.cloud.storage.Kii;
-import com.kii.cloud.storage.KiiUser;
 import com.kii.gatewaysample.GatewaySampleApplication;
 import com.kii.gatewaysample.R;
 import com.kii.gatewaysample.db.DatabaseHelper;
 import com.kii.gatewaysample.db.dao.OnboardedNodesDao;
-import com.kii.gatewaysample.model.ApiBuilder;
 import com.kii.gatewaysample.utils.GatewayPromiseAPIWrapper;
 import com.kii.gatewaysample.utils.IoTCloudPromiseAPIWrapper;
-import com.kii.thingif.Target;
 import com.kii.thingif.ThingIFAPI;
 import com.kii.thingif.exception.StoredGatewayAPIInstanceNotFoundException;
+import com.kii.thingif.exception.StoredThingIFAPIInstanceNotFoundException;
+import com.kii.thingif.gateway.EndNode;
 import com.kii.thingif.gateway.GatewayAPI;
+import com.kii.thingif.gateway.PendingEndNode;
 
 import org.jdeferred.DoneCallback;
 import org.jdeferred.DonePipe;
@@ -37,11 +38,10 @@ import java.util.concurrent.atomic.AtomicReference;
 
 public class OnboardEndnodeDialogFragment extends DialogFragment {
 
-    public static OnboardEndnodeDialogFragment newFragment(String gatewayThingID, String vendorThingID) {
+    public static OnboardEndnodeDialogFragment newFragment(PendingEndNode pendingEndNode) {
         OnboardEndnodeDialogFragment fragment = new OnboardEndnodeDialogFragment();
         Bundle args = new Bundle();
-        args.putString("gatewayThingID", gatewayThingID);
-        args.putString("vendorThingID", vendorThingID);
+        args.putParcelable("pendingEndNode", pendingEndNode);
         fragment.setArguments(args);
         return fragment;
     }
@@ -52,12 +52,11 @@ public class OnboardEndnodeDialogFragment extends DialogFragment {
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         final AtomicReference<String> thingID = new AtomicReference<String>();
-        final String gatewayThingID = getArguments().getString("gatewayThingID");
-        final String vendorThingID = getArguments().getString("vendorThingID");
+        final PendingEndNode pendingEndNode = getArguments().getParcelable("pendingEndNode");
         LayoutInflater inflater = getActivity().getLayoutInflater();
         View view = inflater.inflate(R.layout.onboard_endnode_dialog_fragment, null, false);
 
-        ((TextView)view.findViewById(R.id.textVendorThingID)).setText(vendorThingID);
+        ((TextView)view.findViewById(R.id.textVendorThingID)).setText(pendingEndNode.getVendorThingID());
         final EditText editTextThingType = ((EditText)view.findViewById(R.id.editTextThingType));
         final EditText editTextPassword = ((EditText)view.findViewById(R.id.editTextPassword));
 
@@ -72,15 +71,22 @@ public class OnboardEndnodeDialogFragment extends DialogFragment {
                     Toast.makeText(getActivity(), "Password is required", Toast.LENGTH_SHORT).show();
                     return;
                 }
-                ThingIFAPI thingAPI = ApiBuilder.buildApi(getActivity(), KiiUser.getCurrentUser());
-                new IoTCloudPromiseAPIWrapper(thingAPI).onboardEndnodeWithGatewayThingID(gatewayThingID, vendorThingID, password, thingType, null).then(new DonePipe<Target, Void, Throwable, Void>() {
+                final ThingIFAPI thingAPI;
+                try {
+                    thingAPI = ThingIFAPI.loadFromStoredInstance(getContext(), "gateway");
+                } catch (StoredThingIFAPIInstanceNotFoundException e) {
+                    Log.e("OnboardEndnodeDialog", e.getMessage());
+                    return;
+                }
+                new IoTCloudPromiseAPIWrapper(thingAPI).onboardEndnodeWithGateway(pendingEndNode, password).then(new DonePipe<EndNode, Void, Throwable, Void>() {
                     @Override
-                    public Promise<Void, Throwable, Void> pipeDone(Target result) {
+                    public Promise<Void, Throwable, Void> pipeDone(EndNode result) {
                         GatewayAPI gatewayAPI = null;
                         try {
                             gatewayAPI = GatewayAPI.loadFromStoredInstance(GatewaySampleApplication.getInstance());
                             thingID.set(result.getTypedID().getID());
-                            return new GatewayPromiseAPIWrapper(gatewayAPI).notifyOnboardingCompletion(thingID.get(), vendorThingID);
+                            thingAPI.copyWithTarget(result, "endnode"); // Create ThingIFAPI instance for endnode
+                            return new GatewayPromiseAPIWrapper(gatewayAPI).notifyOnboardingCompletion(result);
                         } catch (StoredGatewayAPIInstanceNotFoundException e) {
                             return new DeferredObject<Void, Throwable, Void>().reject(e);
                         }
@@ -89,7 +95,7 @@ public class OnboardEndnodeDialogFragment extends DialogFragment {
                     @Override
                     public Promise<Void, Throwable, Void> pipeDone(Void result) {
                         try {
-                            new OnboardedNodesDao(DatabaseHelper.getInstance()).insert(Kii.getAppId(), thingID.get(), vendorThingID);
+                            new OnboardedNodesDao(DatabaseHelper.getInstance()).insert(Kii.getAppId(), thingID.get(), pendingEndNode.getVendorThingID());
                             return new DeferredObject<Void, Throwable, Void>().resolve(null);
                         } catch (Exception e) {
                             return new DeferredObject<Void, Throwable, Void>().reject(e);
