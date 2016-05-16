@@ -13,16 +13,15 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.kii.cloud.storage.Kii;
 import com.kii.gatewaysample.R;
-import com.kii.gatewaysample.db.DatabaseHelper;
-import com.kii.gatewaysample.db.dao.OnboardedNodesDao;
 import com.kii.gatewaysample.model.ApiBuilder;
 import com.kii.gatewaysample.model.TurnPower;
 import com.kii.gatewaysample.utils.IoTCloudPromiseAPIWrapper;
 import com.kii.thingif.ThingIFAPI;
 import com.kii.thingif.command.Action;
 import com.kii.thingif.command.Command;
+import com.kii.thingif.gateway.EndNode;
+import com.kii.thingif.gateway.GatewayAPI;
 
 import org.jdeferred.AlwaysCallback;
 import org.jdeferred.DoneCallback;
@@ -84,14 +83,15 @@ public class OnboardedNodesFragment extends Fragment implements PagerFragment {
 
     private void loadOnboardedNodes() {
         try {
-            new AndroidDeferredManager().when(new DeferredAsyncTask<Void, Void, List<OnboardedNodesDao.Endnode>>() {
+            new AndroidDeferredManager().when(new DeferredAsyncTask<Void, Void, List<EndNode>>() {
                 @Override
-                protected List<OnboardedNodesDao.Endnode> doInBackgroundSafe(Void... params) throws Exception {
-                    return new OnboardedNodesDao(DatabaseHelper.getInstance()).selectByApp(Kii.getAppId());
+                protected List<EndNode> doInBackgroundSafe(Void... params) throws Exception {
+                    GatewayAPI api = GatewayAPI.loadFromStoredInstance(getActivity());
+                    return api.listOnboardedEndNodes();
                 }
-            }).done(new DoneCallback<List<OnboardedNodesDao.Endnode>>() {
+            }).done(new DoneCallback<List<EndNode>>() {
                 @Override
-                public void onDone(List<OnboardedNodesDao.Endnode> result) {
+                public void onDone(List<EndNode> result) {
                     adapter.clear();
                     adapter.addAll(result);
                 }
@@ -100,9 +100,9 @@ public class OnboardedNodesFragment extends Fragment implements PagerFragment {
                 public void onFail(Throwable result) {
                     Toast.makeText(getActivity(), result.getMessage(), Toast.LENGTH_SHORT).show();
                 }
-            }).always(new AlwaysCallback<List<OnboardedNodesDao.Endnode>, Throwable>() {
+            }).always(new AlwaysCallback<List<EndNode>, Throwable>() {
                 @Override
-                public void onAlways(Promise.State state, List<OnboardedNodesDao.Endnode> resolved, Throwable rejected) {
+                public void onAlways(Promise.State state, List<EndNode> resolved, Throwable rejected) {
                     if (swipeRefreshLayout != null) {
                         swipeRefreshLayout.setRefreshing(false);
                     }
@@ -120,7 +120,7 @@ public class OnboardedNodesFragment extends Fragment implements PagerFragment {
         private Button buttonSendCommand;
     }
 
-    private class OnboardedEndNodeArrayAdapter extends ArrayAdapter<OnboardedNodesDao.Endnode> {
+    private class OnboardedEndNodeArrayAdapter extends ArrayAdapter<EndNode> {
         private final LayoutInflater inflater;
         private OnboardedEndNodeArrayAdapter(Context context) {
             super(context, R.layout.onboarded_node_item);
@@ -138,8 +138,8 @@ public class OnboardedNodesFragment extends Fragment implements PagerFragment {
             } else {
                 holder = (OnboardedEndNodeViewHolder)convertView.getTag();
             }
-            final OnboardedNodesDao.Endnode item = this.getItem(position);
-            holder.text.setText(item.vendorThingID);
+            final EndNode item = this.getItem(position);
+            holder.text.setText(item.getVendorThingID());
             holder.buttonSendCommand.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {

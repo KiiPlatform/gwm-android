@@ -14,11 +14,8 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.kii.cloud.storage.Kii;
 import com.kii.gatewaysample.GatewaySampleApplication;
 import com.kii.gatewaysample.R;
-import com.kii.gatewaysample.db.DatabaseHelper;
-import com.kii.gatewaysample.db.dao.OnboardedNodesDao;
 import com.kii.gatewaysample.utils.GatewayPromiseAPIWrapper;
 import com.kii.gatewaysample.utils.IoTCloudPromiseAPIWrapper;
 import com.kii.thingif.ThingIFAPI;
@@ -88,16 +85,6 @@ public class OnboardEndnodeDialogFragment extends DialogFragment {
                             thingAPI.copyWithTarget(result, "endnode"); // Create ThingIFAPI instance for endnode
                             return new GatewayPromiseAPIWrapper(gatewayAPI).notifyOnboardingCompletion(result);
                         } catch (StoredGatewayAPIInstanceNotFoundException e) {
-                            return new DeferredObject<Void, Throwable, Void>().reject(e);
-                        }
-                    }
-                }).then(new DonePipe<Void, Void, Throwable, Void>() {
-                    @Override
-                    public Promise<Void, Throwable, Void> pipeDone(Void result) {
-                        try {
-                            new OnboardedNodesDao(DatabaseHelper.getInstance()).insert(Kii.getAppId(), thingID.get(), pendingEndNode.getVendorThingID());
-                            return new DeferredObject<Void, Throwable, Void>().resolve(null);
-                        } catch (Exception e) {
                             return new DeferredObject<Void, Throwable, Void>().reject(e);
                         }
                     }
