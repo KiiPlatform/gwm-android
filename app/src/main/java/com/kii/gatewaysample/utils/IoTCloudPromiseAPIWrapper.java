@@ -150,11 +150,11 @@ public class IoTCloudPromiseAPIWrapper {
         });
     }
 
-    public Promise<Trigger, Throwable, Void> deleteTrigger(
+    public Promise<String, Throwable, Void> deleteTrigger(
             final String triggerID) {
-        return adm.when(new DeferredAsyncTask<Void, Void, Trigger>() {
+        return adm.when(new DeferredAsyncTask<Void, Void, String>() {
             @Override
-            protected Trigger doInBackgroundSafe(Void... voids) throws Exception {
+            protected String doInBackgroundSafe(Void... voids) throws Exception {
                 return api.deleteTrigger(triggerID);
             }
         });
