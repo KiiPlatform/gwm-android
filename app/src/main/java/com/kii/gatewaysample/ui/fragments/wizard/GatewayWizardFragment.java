@@ -1,10 +1,14 @@
 package com.kii.gatewaysample.ui.fragments.wizard;
 
+import android.app.Activity;
+import android.app.Dialog;
+import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,6 +16,8 @@ import android.widget.EditText;
 
 import com.kii.cloud.storage.Kii;
 import com.kii.gatewaysample.R;
+import com.kii.gatewaysample.model.UPnPService;
+import com.kii.gatewaysample.ui.fragments.GatewayServicesListFragment;
 import com.kii.thingif.KiiApp;
 import com.kii.thingif.Site;
 import com.kii.thingif.gateway.GatewayAPI;
@@ -19,8 +25,11 @@ import com.kii.thingif.gateway.GatewayAPIBuilder;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 
 public class GatewayWizardFragment  extends WizardFragment {
+    private static int REQUEST_CODE_SELECT_GATEWAY = 100;
+
 
     @Bind(R.id.editTextIP)
     EditText editTextIP;
@@ -116,6 +125,34 @@ public class GatewayWizardFragment  extends WizardFragment {
             this.setNextButtonEnabled(false);
         } else {
             this.setNextButtonEnabled(true);
+        }
+    }
+
+    @OnClick(R.id.buttonSearchGateway)
+    public void searchGateway(View v) {
+        GatewayServicesListFragment dialog = GatewayServicesListFragment.newFragment();
+        dialog.setTargetFragment(this, REQUEST_CODE_SELECT_GATEWAY);
+        dialog.show(getActivity().getSupportFragmentManager(), "GatewayServicesListFragment");
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if(requestCode == REQUEST_CODE_SELECT_GATEWAY &&
+                resultCode == Activity.RESULT_OK &&
+                data.hasExtra(GatewayServicesListFragment.GATEWAY_SERVICE)) {
+            UPnPService selectedGateway =
+                    (UPnPService) data.getParcelableExtra(GatewayServicesListFragment.GATEWAY_SERVICE);
+            String location = selectedGateway.getLocation();
+            if(location.startsWith("http://")){
+                location = location.substring(7);
+            }else if (location.startsWith("https://")){
+                location = location.substring(8);
+            }
+            String[] parts = location.split(":");
+            String ip = parts[0];
+            String port = parts[1];
+            editTextIP.setText(ip);
+            editTextPortNo.setText(port);
         }
     }
 }
