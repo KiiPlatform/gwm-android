@@ -1,27 +1,30 @@
 package com.kii.gatewaysample.ui.fragments.wizard;
 
 import android.app.Activity;
-import android.app.Dialog;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import com.kii.cloud.storage.Kii;
 import com.kii.gatewaysample.R;
 import com.kii.gatewaysample.model.UPnPService;
 import com.kii.gatewaysample.ui.fragments.GatewayServicesListFragment;
+import com.kii.gatewaysample.utils.UPnPControlPointPromise;
 import com.kii.thingif.KiiApp;
 import com.kii.thingif.Site;
 import com.kii.thingif.gateway.GatewayAPI;
 import com.kii.thingif.gateway.GatewayAPIBuilder;
+
+import org.jdeferred.DoneCallback;
+import org.jdeferred.FailCallback;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -130,9 +133,7 @@ public class GatewayWizardFragment  extends WizardFragment {
 
     @OnClick(R.id.buttonSearchGateway)
     public void searchGateway(View v) {
-        GatewayServicesListFragment dialog = GatewayServicesListFragment.newFragment();
-        dialog.setTargetFragment(this, REQUEST_CODE_SELECT_GATEWAY);
-        dialog.show(getActivity().getSupportFragmentManager(), "GatewayServicesListFragment");
+        loadGatewayServices();
     }
 
     @Override
@@ -155,5 +156,27 @@ public class GatewayWizardFragment  extends WizardFragment {
             editTextPortNo.setText(port);
         }
     }
+
+    private void loadGatewayServices() {
+        new UPnPControlPointPromise(this.getContext()).discover("urn:kii:service:iot-gateway:1").then(new DoneCallback<UPnPService[]>() {
+            @Override
+            public void onDone(UPnPService[] result) {
+                if(result.length == 0){
+                    Toast.makeText(getActivity(), "No gateway found", Toast.LENGTH_SHORT).show();
+                }else {
+                    GatewayServicesListFragment dialog = GatewayServicesListFragment.newFragment(result);
+                    dialog.setTargetFragment(GatewayWizardFragment.this, REQUEST_CODE_SELECT_GATEWAY);
+                    dialog.show(getActivity().getSupportFragmentManager(), "GatewayServicesListFragment");
+                }
+
+            }
+        }).fail(new FailCallback<Throwable>() {
+            @Override
+            public void onFail(Throwable result) {
+                Toast.makeText(getActivity(), result.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
 }
 
