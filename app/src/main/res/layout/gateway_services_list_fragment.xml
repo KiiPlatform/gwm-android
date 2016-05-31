@@ -5,7 +5,7 @@
     <ListView
         android:id="@+id/gatewayServicesListView"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:choiceMode="singleChoice"
         android:listSelector="@android:color/holo_blue_dark"></ListView>
     <LinearLayout
