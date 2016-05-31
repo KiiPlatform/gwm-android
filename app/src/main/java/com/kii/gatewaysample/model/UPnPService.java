@@ -99,6 +99,10 @@ public class UPnPService implements Parcelable {
         return usn;
     }
 
+    public long getMaxAge() {
+        return maxAge;
+    }
+
     public String toString() {
         HashMap<String, Object> serviceMap = new HashMap<String, Object>();
         serviceMap.put("MaxAge", maxAge);

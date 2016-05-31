@@ -49,7 +49,7 @@ public class GatewayServicesListFragment extends DialogFragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.gateway_services_list_fragment, null);
-        getDialog().getWindow().requestFeature(Window.FEATURE_NO_TITLE);
+        getDialog().setTitle("Found Gateway Services");
         ButterKnife.bind(this, view);
         this.adapter = new GatewayServiceArrayAdapter(getActivity());
         this.listView.setAdapter(adapter);
@@ -57,7 +57,7 @@ public class GatewayServicesListFragment extends DialogFragment {
         this.listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                String location = ((TextView) view.findViewById(R.id.gateway_ip) ).getText().toString();
+                String location = ((TextView) view.findViewById(R.id.gateway_description) ).getText().toString();
                 selectedService = (UPnPService)adapter.getItem(position);
             }
         });
@@ -74,16 +74,16 @@ public class GatewayServicesListFragment extends DialogFragment {
         }
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
-            TextView ip = null;
+            TextView description = null;
             if (convertView == null) {
                 convertView = this.inflater.inflate(R.layout.gateway_service_layout, parent, false);
-                ip = (TextView)convertView.findViewById(R.id.gateway_ip);
-                convertView.setTag(ip);
+                description = (TextView)convertView.findViewById(R.id.gateway_description);
+                convertView.setTag(description);
             } else {
-                ip = (TextView) convertView.getTag();
+                description = (TextView) convertView.getTag();
             }
             final UPnPService item = this.getItem(position);
-            ip.setText(item.getLocation());
+            description.setText("Address:"+item.getLocation()+"\nService Type:"+item.getSt()+"\nMax age:"+item.getMaxAge());
             return convertView;
         }
     }
