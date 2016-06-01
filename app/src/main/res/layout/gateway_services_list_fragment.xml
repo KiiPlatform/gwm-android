@@ -9,6 +9,7 @@
         android:choiceMode="singleChoice"
         android:listSelector="@android:color/holo_blue_dark"></ListView>
     <LinearLayout
+        android:gravity="right"
         android:orientation="horizontal"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
@@ -18,12 +19,6 @@
             android:layout_height="wrap_content"
             android:onClick="onCancel"
             android:text="Cancel"/>
-        <Button
-            android:id="@+id/select_btn"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:onClick="onSelect"
-            android:text="Select"/>
     </LinearLayout>
 </LinearLayout>
 

@@ -59,8 +59,10 @@ public class GatewayServicesListFragment extends DialogFragment {
         this.listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                String location = ((TextView) view.findViewById(R.id.gateway_description) ).getText().toString();
-                selectedService = (UPnPService)adapter.getItem(position);
+                Intent intent = new Intent();
+                intent.putExtra(GATEWAY_SERVICE, adapter.getItem(position));
+                getTargetFragment().onActivityResult(getTargetRequestCode(), Activity.RESULT_OK, intent);
+                dismiss();
             }
         });
 
@@ -88,16 +90,6 @@ public class GatewayServicesListFragment extends DialogFragment {
             description.setText("Address:"+item.getLocation()+"\nService Type:"+item.getSt()+"\nMax age:"+item.getMaxAge());
             return convertView;
         }
-    }
-
-    @OnClick(R.id.select_btn)
-    public void onSelect(View v){
-        Intent intent = new Intent();
-        if (selectedService != null) {
-            intent.putExtra(GATEWAY_SERVICE, selectedService);
-        }
-        getTargetFragment().onActivityResult(getTargetRequestCode(), Activity.RESULT_OK, intent);
-        dismiss();
     }
 
     @OnClick(R.id.cancel_btn)
