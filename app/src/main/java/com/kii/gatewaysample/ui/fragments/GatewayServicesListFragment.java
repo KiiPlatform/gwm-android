@@ -26,7 +26,7 @@ import butterknife.OnClick;
  */
 public class GatewayServicesListFragment extends DialogFragment {
     public final static String GATEWAY_SERVICE="gateway_service";
-
+    public final static String FOUND_SERVICES = "found_services";
 
     @Bind(R.id.gatewayServicesListView)
     ListView listView;
@@ -41,7 +41,9 @@ public class GatewayServicesListFragment extends DialogFragment {
 
     public static GatewayServicesListFragment newFragment(UPnPService[] foundServices){
         GatewayServicesListFragment fragment = new GatewayServicesListFragment();
-        fragment.foundServices = foundServices;
+        Bundle bundle = new Bundle();
+        bundle.putParcelableArray(FOUND_SERVICES, foundServices);
+        fragment.setArguments(bundle);
         return fragment;
     }
 
@@ -53,7 +55,7 @@ public class GatewayServicesListFragment extends DialogFragment {
         ButterKnife.bind(this, view);
         this.adapter = new GatewayServiceArrayAdapter(getActivity());
         this.listView.setAdapter(adapter);
-        adapter.addAll(this.foundServices);
+        adapter.addAll((UPnPService[]) getArguments().getParcelableArray(FOUND_SERVICES));
         this.listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
