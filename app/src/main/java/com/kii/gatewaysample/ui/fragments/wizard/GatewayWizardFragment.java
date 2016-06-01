@@ -1,5 +1,7 @@
 package com.kii.gatewaysample.ui.fragments.wizard;
 
+import android.app.Activity;
+import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.text.Editable;
@@ -8,19 +10,30 @@ import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import com.kii.cloud.storage.Kii;
 import com.kii.gatewaysample.R;
+import com.kii.gatewaysample.model.UPnPService;
+import com.kii.gatewaysample.ui.fragments.GatewayServicesListFragment;
+import com.kii.gatewaysample.utils.UPnPControlPointPromise;
 import com.kii.thingif.KiiApp;
 import com.kii.thingif.Site;
 import com.kii.thingif.gateway.GatewayAPI;
 import com.kii.thingif.gateway.GatewayAPIBuilder;
 
+import org.jdeferred.DoneCallback;
+import org.jdeferred.FailCallback;
+
 import butterknife.Bind;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 
 public class GatewayWizardFragment  extends WizardFragment {
+    private static int REQUEST_CODE_SELECT_GATEWAY = 100;
+
 
     @Bind(R.id.editTextIP)
     EditText editTextIP;
@@ -30,6 +43,8 @@ public class GatewayWizardFragment  extends WizardFragment {
     EditText editTextUsername;
     @Bind(R.id.editTextPassword)
     EditText editTextPassword;
+    @Bind(R.id.buttonSearchGateway)
+    Button buttonSearchGateway;
 
     public static GatewayWizardFragment newFragment() {
         GatewayWizardFragment fragment = new GatewayWizardFragment();
@@ -118,5 +133,54 @@ public class GatewayWizardFragment  extends WizardFragment {
             this.setNextButtonEnabled(true);
         }
     }
+
+    @OnClick(R.id.buttonSearchGateway)
+    public void searchGateway(View v) {
+        buttonSearchGateway.setEnabled(false);
+        loadGatewayServices();
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if(requestCode == REQUEST_CODE_SELECT_GATEWAY &&
+                resultCode == Activity.RESULT_OK &&
+                data.hasExtra(GatewayServicesListFragment.GATEWAY_SERVICE)) {
+            UPnPService selectedGateway =
+                    (UPnPService) data.getParcelableExtra(GatewayServicesListFragment.GATEWAY_SERVICE);
+            String location = selectedGateway.getLocation();
+            if(location.startsWith("http://")){
+                location = location.substring(7);
+            }else if (location.startsWith("https://")){
+                location = location.substring(8);
+            }
+            String[] parts = location.split(":");
+            String ip = parts[0];
+            String port = parts[1];
+            editTextIP.setText(ip);
+            editTextPortNo.setText(port);
+        }
+    }
+
+    private void loadGatewayServices() {
+        new UPnPControlPointPromise(this.getContext()).discover("urn:kii:service:iot-gateway:1").then(new DoneCallback<UPnPService[]>() {
+            @Override
+            public void onDone(UPnPService[] result) {
+                buttonSearchGateway.setEnabled(true);
+                if(result.length == 0){
+                    Toast.makeText(getActivity(), "No gateway found", Toast.LENGTH_SHORT).show();
+                }else {
+                    GatewayServicesListFragment dialog = GatewayServicesListFragment.newFragment(result);
+                    dialog.setTargetFragment(GatewayWizardFragment.this, REQUEST_CODE_SELECT_GATEWAY);
+                    dialog.show(getActivity().getSupportFragmentManager(), "GatewayServicesListFragment");
+                }
+            }
+        }).fail(new FailCallback<Throwable>() {
+            @Override
+            public void onFail(Throwable result) {
+                Toast.makeText(getActivity(), result.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
 }
 
