@@ -95,7 +95,9 @@ public class UPnPControlPointPromise {
                             // Skip status string
                             String contentString = new String(data, 12, i);
                             UPnPService foundService = parseService(contentString);
-                            services.add(foundService);
+                            if (foundService != null) {
+                                services.add(foundService);
+                            }
                             curTime = System.currentTimeMillis();
                         }
 
