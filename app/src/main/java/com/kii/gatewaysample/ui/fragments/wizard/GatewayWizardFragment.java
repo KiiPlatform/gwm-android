@@ -10,6 +10,7 @@ import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
@@ -42,6 +43,8 @@ public class GatewayWizardFragment  extends WizardFragment {
     EditText editTextUsername;
     @Bind(R.id.editTextPassword)
     EditText editTextPassword;
+    @Bind(R.id.buttonSearchGateway)
+    Button buttonSearchGateway;
 
     public static GatewayWizardFragment newFragment() {
         GatewayWizardFragment fragment = new GatewayWizardFragment();
@@ -133,6 +136,7 @@ public class GatewayWizardFragment  extends WizardFragment {
 
     @OnClick(R.id.buttonSearchGateway)
     public void searchGateway(View v) {
+        buttonSearchGateway.setEnabled(false);
         loadGatewayServices();
     }
 
@@ -161,6 +165,7 @@ public class GatewayWizardFragment  extends WizardFragment {
         new UPnPControlPointPromise(this.getContext()).discover("urn:kii:service:iot-gateway:1").then(new DoneCallback<UPnPService[]>() {
             @Override
             public void onDone(UPnPService[] result) {
+                buttonSearchGateway.setEnabled(true);
                 if(result.length == 0){
                     Toast.makeText(getActivity(), "No gateway found", Toast.LENGTH_SHORT).show();
                 }else {
@@ -168,7 +173,6 @@ public class GatewayWizardFragment  extends WizardFragment {
                     dialog.setTargetFragment(GatewayWizardFragment.this, REQUEST_CODE_SELECT_GATEWAY);
                     dialog.show(getActivity().getSupportFragmentManager(), "GatewayServicesListFragment");
                 }
-
             }
         }).fail(new FailCallback<Throwable>() {
             @Override

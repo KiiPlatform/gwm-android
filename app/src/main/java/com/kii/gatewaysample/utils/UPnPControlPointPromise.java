@@ -15,6 +15,7 @@ import java.io.InputStream;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -75,7 +76,12 @@ public class UPnPControlPointPromise {
                         // Let's consider all the responses we can get in 1 second
                         while (curTime - time < 1000) {
                             DatagramPacket p = new DatagramPacket(new byte[BUFFER_SIZE], BUFFER_SIZE);
-                            socket.receive(p);
+                            socket.setSoTimeout(1000);
+                            try {
+                                socket.receive(p);
+                            }catch (SocketTimeoutException e) {
+                                break;
+                            }
                             byte[] data = p.getData();
 
                             // check status first
